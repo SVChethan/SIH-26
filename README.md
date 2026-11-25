@@ -1,0 +1,1 @@
+the sih project is baiscaaly about the finding out of the corruption taken place by the road contractor during it construction using AI. we will be using the YOLO , satelights , world map , govt contracts.

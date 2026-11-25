@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIVIC-EYE AI | AI-Powered Public Construction & Corruption Detection System</title>
+  <meta name="description" content="State-of-the-art AI platform for anti-corruption monitoring of public construction projects using Leaflet GIS mapping, CNN image verification, and NLP document parsing." />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              800: '#111827',
+              900: '#0b0f19',
+              950: '#070a12',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- React 18 & ReactDOM 18 -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white">
+  <div id="root"></div>
+
+  <!-- Inline Mock Data -->
+  <script>
+    window.INITIAL_PROJECTS = [
+      {
+        id: "PRJ-2026-089",
+        name: "Metropolitan Elevated Expressway Line 4",
+        region: "Northern Transit Zone",
+        sector: "Transport & Highways",
+        contractor: "Vanguard Infra Consortium",
+        contractorTaxId: "TX-9981-VNG",
+        contractorRisk: "High Monopoly Risk (Shared address with 3 shell firms)",
+        allocatedBudget: 450000000,
+        disbursedBudget: 405000000,
+        reportedProgress: 92,
+        actualProgress: 38,
+        discrepancyDelta: -54,
+        riskScore: 96,
+        riskLevel: "CRITICAL",
+        status: "RED",
+        workflowStatus: "FLAGGED",
+        slaDeadlineHours: 36,
+        assignedAuthority: "Central Vigilance Bureau - Zone 1",
+        coordinates: [19.0760, 72.8777],
+        locationName: "Bandra-Kurla Transit Corridor",
+        anomalies: [
+          { type: "Financial Discrepancy", code: "FIN_DISC_90", severity: "HIGH", description: "Disbursed budget (90% / $405M) drastically outpaces physical progress (38%). Unexplained $234M variance.", detectedDate: "2026-09-02" },
+          { type: "Image / Progress Mismatch", code: "CNN_MISMATCH_54", severity: "CRITICAL", description: "CNN Satellite & Citizen photo analysis confirms 4 major piers missing rebar steel grid. Claimed 92% complete.", detectedDate: "2026-09-05" },
+          { type: "Contract NLP Discrepancy", code: "NLP_CLAUSE_VIOLATION", severity: "HIGH", description: "Clause 14.2 requires Independent Quality Audit Signoff before Tranche #4 release. Tranche released without audit document ID.", detectedDate: "2026-09-08" },
+          { type: "Contractor Monopoly Fraud", code: "MONOPOLY_BID_RICO", severity: "MEDIUM", description: "Consortium shares registered tax address (Suite 402, Trade Tower) with 2 competing losing bidders.", detectedDate: "2026-09-10" }
+        ],
+        contractClauses: [
+          { clause: "Sec 4.2 (Payment Release)", text: "Tranche payments contingent on 3rd-party engineering verification.", verified: false, breach: "Disbursed without verification record." },
+          { clause: "Sec 8.1 (Subcontracting)", text: "Subcontracting exceeding 15% of total tender value strictly prohibited.", verified: false, breach: "84% subcontracted to unregistered offshore entity." }
+        ],
+        citizenPhotos: [
+          {
+            id: "RPT-881",
+            submitter: "Anonymous Citizen #409",
+            timestamp: "2026-09-10 14:22 UTC",
+            lat: 19.0765,
+            lng: 72.8782,
+            imageUrl: "assets/site_foundation_incomplete_1789104285937.png",
+            userNotes: "Piers 12 through 16 are completely abandoned. No workers on site for 3 months despite official claims of paving.",
+            exifData: { camera: "iPhone 14 Pro", deviceHash: "SHA256:e3b0c442", accuracy: "±3.2 meters", ISO: 100, focalLength: "24mm" },
+            cnnAnalysis: { detectedState: "Incomplete Foundation", estimatedCompletion: 35, confidenceScore: 98.4, detectedObjects: ["Exposed Rebar 12%", "Idle Excavator 1", "Unpoured Concrete 88%"] }
+          }
+        ]
+      },
+      {
+        id: "PRJ-2026-042",
+        name: "Suburban Multi-Specialty General Hospital Wing B",
+        region: "Eastern District",
+        sector: "Public Health",
+        contractor: "Apex Healthcare BuildCorp",
+        contractorTaxId: "TX-4412-APX",
+        contractorRisk: "Moderate (Single previous tender overrun)",
+        allocatedBudget: 180000000,
+        disbursedBudget: 144000000,
+        reportedProgress: 85,
+        actualProgress: 42,
+        discrepancyDelta: -43,
+        riskScore: 88,
+        riskLevel: "HIGH",
+        status: "RED",
+        workflowStatus: "UNDER_INVESTIGATION",
+        slaDeadlineHours: 18,
+        assignedAuthority: "Ministry of Public Works Audit Division",
+        coordinates: [19.1197, 72.9050],
+        locationName: "Powai Medical Complex",
+        anomalies: [
+          { type: "Image / Progress Mismatch", code: "CNN_MISMATCH_43", severity: "HIGH", description: "Official filings claim HVAC and ICU electrical grid complete. CNN photo analysis shows unroofed brick shell.", detectedDate: "2026-09-04" },
+          { type: "Financial Discrepancy", code: "FIN_DISC_80", severity: "MEDIUM", description: "Disbursement reaches 80% with only structural concrete phase partially finished.", detectedDate: "2026-09-07" }
+        ],
+        contractClauses: [
+          { clause: "Sec 12.3 (Medical Gas Piping)", text: "Must use certified ISO-9001 medical copper.", verified: false, breach: "Substandard grade copper batch detected in customs audit." }
+        ],
+        citizenPhotos: [
+          {
+            id: "RPT-904",
+            submitter: "Dr. A. Verma (Resident)",
+            timestamp: "2026-09-09 09:15 UTC",
+            lat: 19.1200,
+            lng: 72.9055,
+            imageUrl: "assets/school_building_delayed_1789104312663.png",
+            userNotes: "Wing B has no roof or window frames. Yet contractor billed $35M for interior air purification systems.",
+            exifData: { camera: "Samsung Galaxy S23", deviceHash: "SHA256:7f83b165", accuracy: "±2.1 meters", ISO: 200, focalLength: "50mm" },
+            cnnAnalysis: { detectedState: "Unroofed Shell", estimatedCompletion: 40, confidenceScore: 96.1, detectedObjects: ["Masonry Shell 40%", "No Roof Grid", "Zero HVAC Fittings"] }
+          }
+        ]
+      },
+      {
+        id: "PRJ-2026-115",
+        name: "Godavari Basin Flood Defense Wall & River Dam",
+        region: "Southern Watershed",
+        sector: "Water & Disaster Prevention",
+        contractor: "HydroShield Infrastructure",
+        contractorTaxId: "TX-1092-HYD",
+        contractorRisk: "Severe Structural Safety Breach",
+        allocatedBudget: 320000000,
+        disbursedBudget: 224000000,
+        reportedProgress: 75,
+        actualProgress: 48,
+        discrepancyDelta: -27,
+        riskScore: 91,
+        riskLevel: "CRITICAL",
+        status: "RED",
+        workflowStatus: "ESCALATED",
+        slaDeadlineHours: 0,
+        assignedAuthority: "Central Anti-Corruption Vigilance Bureau",
+        coordinates: [19.0176, 72.8561],
+        locationName: "Basin Zone Pier 4",
+        anomalies: [
+          { type: "Quality / Safety Fraud", code: "QUAL_CRACK_SEV", severity: "CRITICAL", description: "Citizen photo EXIF analysis & ultrasonic testing confirmed micro-cracks in load-bearing spillway pier.", detectedDate: "2026-09-01" },
+          { type: "Contractor Monopoly Fraud", code: "BID_RIGGING_PATTERN", severity: "HIGH", description: "Bidding log shows 3 submitted tenders submitted within 14 seconds from identical IP address range 182.71.x.x.", detectedDate: "2026-09-03" }
+        ],
+        contractClauses: [
+          { clause: "Sec 6.4 (Concrete Strength)", text: "Minimum 45 MPa compressive strength required for spillway retention.", verified: false, breach: "Core sample tests returned only 22 MPa." }
+        ],
+        citizenPhotos: [
+          {
+            id: "RPT-772",
+            submitter: "Civil Eng. Oversight Volunteer",
+            timestamp: "2026-09-08 11:40 UTC",
+            lat: 19.0180,
+            lng: 72.8565,
+            imageUrl: "assets/bridge_pier_crack_1789104300196.png",
+            userNotes: "Visible stress fractures running along Spillway Pillar #3. High risk of catastrophic failure during monsoon season.",
+            exifData: { camera: "Pixel 7 Pro", deviceHash: "SHA256:a1b2c3d4", accuracy: "±1.8 meters", ISO: 50, focalLength: "35mm" },
+            cnnAnalysis: { detectedState: "Structural Micro-Fissure", estimatedCompletion: 48, confidenceScore: 99.1, detectedObjects: ["Concrete Fissure Length 1.2m", "Unsealed Surface", "High Moisture Infiltration"] }
+          }
+        ]
+      },
+      {
+        id: "PRJ-2026-204",
+        name: "Model Smart High School & Digital Science Lab",
+        region: "Central City Ward 7",
+        sector: "Education Infrastructure",
+        contractor: "BuildTech Urban Solutions",
+        contractorTaxId: "TX-5510-BTU",
+        contractorRisk: "Low Risk Profile",
+        allocatedBudget: 42000000,
+        disbursedBudget: 27300000,
+        reportedProgress: 68,
+        actualProgress: 56,
+        discrepancyDelta: -12,
+        riskScore: 45,
+        riskLevel: "MEDIUM",
+        status: "YELLOW",
+        workflowStatus: "UNDER_INVESTIGATION",
+        slaDeadlineHours: 64,
+        assignedAuthority: "Municipal Education Board Audit Cell",
+        coordinates: [19.2183, 72.9781],
+        locationName: "Thane Sector 12",
+        anomalies: [
+          { type: "Financial Discrepancy", code: "MINOR_OVERRUN", severity: "LOW", description: "65% funds disbursed for 56% verified physical work. Minor supply chain delay reported.", detectedDate: "2026-09-09" }
+        ],
+        contractClauses: [{ clause: "Sec 3.1 (Completion Timeline)", text: "Phase 2 delivery deadline set for Q3 2026.", verified: true, breach: "None" }],
+        citizenPhotos: []
+      },
+      {
+        id: "PRJ-2026-310",
+        name: "Solar Energy Grid & Rural Electrification Substation",
+        region: "Western Agricultural Belt",
+        sector: "Energy & Utilities",
+        contractor: "SunGrid Power Systems",
+        contractorTaxId: "TX-8831-SGP",
+        contractorRisk: "Verified Compliant Contractor",
+        allocatedBudget: 125000000,
+        disbursedBudget: 100000000,
+        reportedProgress: 82,
+        actualProgress: 81,
+        discrepancyDelta: -1,
+        riskScore: 12,
+        riskLevel: "LOW",
+        status: "GREEN",
+        workflowStatus: "RESOLVED",
+        slaDeadlineHours: 120,
+        assignedAuthority: "State Electricity Regulatory Commission",
+        coordinates: [19.0330, 73.0297],
+        locationName: "Navi Mumbai Green Tech Zone",
+        anomalies: [],
+        contractClauses: [],
+        citizenPhotos: []
+      },
+      {
+        id: "PRJ-2026-401",
+        name: "District Automated Water Purification Plant",
+        region: "Northern Industrial Ring",
+        sector: "Water & Sanitation",
+        contractor: "AquaPure Engineering",
+        contractorTaxId: "TX-3311-AQP",
+        contractorRisk: "Verified Compliant",
+        allocatedBudget: 95000000,
+        disbursedBudget: 66500000,
+        reportedProgress: 72,
+        actualProgress: 70,
+        discrepancyDelta: -2,
+        riskScore: 18,
+        riskLevel: "LOW",
+        status: "GREEN",
+        workflowStatus: "RESOLVED",
+        slaDeadlineHours: 96,
+        assignedAuthority: "Water Quality Vigilance Dept",
+        coordinates: [19.1663, 72.8526],
+        locationName: "Goregaon Industrial Belt",
+        anomalies: [],
+        contractClauses: [],
+        citizenPhotos: []
+      }
+    ];
+
+    window.INITIAL_AUDIT_LOGS = [
+      { id: "LOG-1009", timestamp: "2026-09-11 09:30:14 IST", projectId: "PRJ-2026-089", projectName: "Metropolitan Elevated Expressway Line 4", action: "AI Anomaly Triggered", details: "CNN Satellite feed & Treasury disbursement parser detected 54% completion discrepancy. Automated alert dispatched.", actor: "CIVIC-EYE AI Engine", type: "CRITICAL" },
+      { id: "LOG-1008", timestamp: "2026-09-10 14:22:00 IST", projectId: "PRJ-2026-089", projectName: "Metropolitan Elevated Expressway Line 4", action: "Citizen Evidence Uploaded", details: "Report #RPT-881 uploaded with EXIF GPS coordinates [19.0765, 72.8782]. CNN verified incomplete foundation.", actor: "Citizen #409", type: "INFO" },
+      { id: "LOG-1007", timestamp: "2026-09-09 11:15:30 IST", projectId: "PRJ-2026-115", projectName: "Godavari Basin Flood Defense Wall", action: "Escalated to Vigilance Bureau", details: "72h SLA timer expired without contractor remediation plan. Case transferred to Central Anti-Corruption Bureau.", actor: "Automated SLA Monitor", type: "WARNING" },
+      { id: "LOG-1006", timestamp: "2026-09-08 16:45:10 IST", projectId: "PRJ-2026-042", projectName: "Suburban Multi-Specialty General Hospital Wing B", action: "Notice Sent to Authority", details: "Official audit notice #PW-8830 sent to Ministry of Public Works. 48h deadline initiated.", actor: "Auditor Sarah Jenkins", type: "ACTION" }
+    ];
+
+    window.CONTRACTOR_MONOPOLY_DATA = [
+      { name: "Vanguard Infra Consortium", contractsWon: 14, totalValue: 1250000000, shellConnections: 3, riskIndex: 94, flag: "Collusive Bidding Network" },
+      { name: "Apex Healthcare BuildCorp", contractsWon: 8, totalValue: 680000000, shellConnections: 1, riskIndex: 72, flag: "Repeated Budget Overruns" },
+      { name: "HydroShield Infrastructure", contractsWon: 6, totalValue: 540000000, shellConnections: 2, riskIndex: 88, flag: "Substandard Materials" },
+      { name: "BuildTech Urban Solutions", contractsWon: 5, totalValue: 290000000, shellConnections: 0, riskIndex: 35, flag: "Clean Audit History" },
+      { name: "SunGrid Power Systems", contractsWon: 4, totalValue: 210000000, shellConnections: 0, riskIndex: 12, flag: "High Performance Rating" }
+    ];
+  </script>
+
+  <!-- Inline Main Application -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const Icon = ({ name, size = 18, className = "" }) => {
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      }, [name]);
+      return <i data-lucide={name} className={`inline-block ${className}`} style={{ width: size, height: size }}></i>;
+    };
+
+    function App() {
+      const [theme, setTheme] = useState("dark");
+      const [activeTab, setActiveTab] = useState("overview");
+      const [projects, setProjects] = useState(window.INITIAL_PROJECTS || []);
+      const [auditLogs, setAuditLogs] = useState(window.INITIAL_AUDIT_LOGS || []);
+      const [selectedProjectId, setSelectedProjectId] = useState("PRJ-2026-089");
+      const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+      const [searchQuery, setSearchQuery] = useState("");
+      const [riskFilter, setRiskFilter] = useState("ALL");
+      const [showCitizenModal, setShowCitizenModal] = useState(false);
+
+      useEffect(() => {
+        if (theme === "light") {
+          document.body.classList.add("light-mode");
+        } else {
+          document.body.classList.remove("light-mode");
+        }
+      }, [theme]);
+
+      const selectedProject = projects.find(p => p.id === selectedProjectId) || projects[0];
+
+      const handleSendToAuthority = (projId) => {
+        setProjects(prev => prev.map(p => {
+          if (p.id === projId) {
+            return { ...p, workflowStatus: "UNDER_INVESTIGATION", slaDeadlineHours: 48 };
+          }
+          return p;
+        }));
+        const proj = projects.find(p => p.id === projId);
+        const newLog = {
+          id: `LOG-${Math.floor(1000 + Math.random() * 9000)}`,
+          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19) + " IST",
+          projectId: projId,
+          projectName: proj?.name || projId,
+          action: "Notice Sent to Authority",
+          details: `Official audit notice dispatched to ${proj?.assignedAuthority || 'Concerned Ministry'}. 48h SLA timer started.`,
+          actor: "Auditor Sarah Jenkins",
+          type: "ACTION"
+        };
+        setAuditLogs(prev => [newLog, ...prev]);
+      };
+
+      const handleEscalateCase = (projId) => {
+        setProjects(prev => prev.map(p => {
+          if (p.id === projId) {
+            return { 
+              ...p, 
+              workflowStatus: "ESCALATED", 
+              status: "RED", 
+              riskScore: 98, 
+              slaDeadlineHours: 0,
+              assignedAuthority: "Central Anti-Corruption Vigilance Bureau"
+            };
+          }
+          return p;
+        }));
+        const proj = projects.find(p => p.id === projId);
+        const newLog = {
+          id: `LOG-${Math.floor(1000 + Math.random() * 9000)}`,
+          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19) + " IST",
+          projectId: projId,
+          projectName: proj?.name || projId,
+          action: "Case Escalated to Central Bureau",
+          details: `Case escalated to Central Anti-Corruption Vigilance Bureau. Emergency disbursement freeze order issued.`,
+          actor: "System Administrator / Anti-Corruption Director",
+          type: "WARNING"
+        };
+        setAuditLogs(prev => [newLog, ...prev]);
+      };
+
+      const handleResolveCase = (projId) => {
+        setProjects(prev => prev.map(p => {
+          if (p.id === projId) {
+            return { ...p, workflowStatus: "RESOLVED", status: "GREEN", riskScore: 15 };
+          }
+          return p;
+        }));
+        const proj = projects.find(p => p.id === projId);
+        const newLog = {
+          id: `LOG-${Math.floor(1000 + Math.random() * 9000)}`,
+          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19) + " IST",
+          projectId: projId,
+          projectName: proj?.name || projId,
+          action: "Case Remediation Verified",
+          details: "Contractor submitted verified engineering sign-off and rectified financial variance. Case marked resolved.",
+          actor: "Chief Integrity Officer",
+          type: "INFO"
+        };
+        setAuditLogs(prev => [newLog, ...prev]);
+      };
+
+      const handleAddCitizenReport = (reportData) => {
+        setProjects(prev => prev.map(p => {
+          if (p.id === reportData.projectId) {
+            const updatedPhotos = [reportData.photoReport, ...p.citizenPhotos];
+            const newActualProgress = reportData.photoReport.cnnAnalysis.estimatedCompletion;
+            const newDelta = newActualProgress - p.reportedProgress;
+            const isAnomaly = Math.abs(newDelta) > 20;
+            return {
+              ...p,
+              actualProgress: newActualProgress,
+              discrepancyDelta: newDelta,
+              citizenPhotos: updatedPhotos,
+              status: isAnomaly ? "RED" : p.status,
+              riskScore: isAnomaly ? Math.max(p.riskScore, 92) : p.riskScore
+            };
+          }
+          return p;
+        }));
+
+        const newLog = {
+          id: `LOG-${Math.floor(1000 + Math.random() * 9000)}`,
+          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19) + " IST",
+          projectId: reportData.projectId,
+          projectName: projects.find(p => p.id === reportData.projectId)?.name || reportData.projectId,
+          action: "Citizen Evidence Uploaded & CNN Verified",
+          details: `Citizen submitted site photo at GPS [${reportData.photoReport.lat}, ${reportData.photoReport.lng}]. CNN verified physical progress: ${reportData.photoReport.cnnAnalysis.estimatedCompletion}%.`,
+          actor: reportData.photoReport.submitter,
+          type: "INFO"
+        };
+        setAuditLogs(prev => [newLog, ...prev]);
+        setShowCitizenModal(false);
+      };
+
+      const totalMonitored = projects.length;
+      const totalAllocated = projects.reduce((acc, p) => acc + p.allocatedBudget, 0);
+      const totalDisbursed = projects.reduce((acc, p) => acc + p.disbursedBudget, 0);
+      const totalVarianceRisk = projects.filter(p => p.status === "RED").reduce((acc, p) => acc + (p.disbursedBudget - (p.allocatedBudget * (p.actualProgress / 100))), 0);
+      const flaggedAlertsCount = projects.filter(p => p.status === "RED").length;
+      const pendingReviewCount = projects.filter(p => p.workflowStatus === "UNDER_INVESTIGATION" || p.workflowStatus === "FLAGGED").length;
+      const escalatedCount = projects.filter(p => p.workflowStatus === "ESCALATED").length;
+
+      const filteredProjects = projects.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              p.contractor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              p.sector.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesRisk = riskFilter === "ALL" || p.status === riskFilter;
+        return matchesSearch && matchesRisk;
+      });
+
+      return (
+        <div className="min-h-screen flex flex-col transition-colors duration-200">
+          <header className="sticky top-0 z-40 bg-slate-900/90 dark:bg-slate-950/90 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between shadow-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-cyan-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30">
+                <Icon name="shield-alert" size={24} className="text-white" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h1 className="font-extrabold text-lg tracking-wider text-slate-100 uppercase">CIVIC-EYE AI</h1>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-semibold font-mono">v3.4-PROD</span>
+                </div>
+                <p className="text-xs text-slate-400">AI-Powered Public Construction & Corruption Detection System</p>
+              </div>
+            </div>
+
+            <div className="hidden md:flex items-center bg-slate-800/80 dark:bg-slate-900/90 border border-slate-700/60 rounded-xl px-3 py-1.5 w-72">
+              <Icon name="search" size={16} className="text-slate-400 mr-2" />
+              <input
+                type="text"
+                placeholder="Search projects, contractors..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-none text-xs text-slate-200 placeholder-slate-400 focus:outline-none w-full"
+              />
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setShowCitizenModal(true)}
+                className="flex items-center space-x-2 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow-md shadow-cyan-500/20 transition"
+              >
+                <Icon name="upload-cloud" size={16} />
+                <span className="hidden sm:inline">Submit Geotagged Photo</span>
+              </button>
+
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-lg bg-slate-800 dark:bg-slate-900 border border-slate-700 text-slate-300 hover:text-white transition"
+              >
+                <Icon name={theme === "dark" ? "sun" : "moon"} size={18} />
+              </button>
+            </div>
+          </header>
+
+          <nav className="bg-slate-900/70 border-b border-slate-800 px-4 py-2 flex items-center space-x-1 overflow-x-auto">
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-xs font-semibold transition ${
+                activeTab === "overview" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              }`}
+            >
+              <Icon name="layout-dashboard" size={16} />
+              <span>Dashboard Overview</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("map")}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-xs font-semibold transition ${
+                activeTab === "map" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              }`}
+            >
+              <Icon name="map-pin" size={16} />
+              <span>GIS Construction Map</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("citizen")}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-xs font-semibold transition ${
+                activeTab === "citizen" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              }`}
+            >
+              <Icon name="camera" size={16} />
+              <span>Citizen Evidence Portal</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("engine")}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-xs font-semibold transition ${
+                activeTab === "engine" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              }`}
+            >
+              <Icon name="cpu" size={16} />
+              <span>AI Anomaly Engine</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("workflow")}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-xs font-semibold transition ${
+                activeTab === "workflow" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              }`}
+            >
+              <Icon name="scale" size={16} />
+              <span>Authority Workflow</span>
+            </button>
+          </nav>
+
+          <main className="flex-1 p-4 md:p-6 space-y-6 max-w-7xl mx-auto w-full">
+            <KPIHeader
+              totalMonitored={totalMonitored}
+              totalAllocated={totalAllocated}
+              totalDisbursed={totalDisbursed}
+              totalVarianceRisk={totalVarianceRisk}
+              flaggedAlertsCount={flaggedAlertsCount}
+              pendingReviewCount={pendingReviewCount}
+              escalatedCount={escalatedCount}
+              riskFilter={riskFilter}
+              setRiskFilter={setRiskFilter}
+            />
+
+            {activeTab === "overview" && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-red-950/60 via-slate-900 to-slate-900 border border-red-900/40 rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-3 rounded-xl bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse">
+                      <Icon name="alert-triangle" size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                        CRITICAL CORRUPTION ANOMALY DETECTED
+                        <span className="bg-red-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">PRIORITY AUDIT</span>
+                      </h3>
+                      <p className="text-xs text-slate-300 mt-0.5">
+                        Metropolitan Elevated Expressway Line 4: 90% budget paid ($405M) vs 38% physical CNN progress. $234M unexplained variance.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedProjectId("PRJ-2026-089");
+                      setIsDrawerOpen(true);
+                    }}
+                    className="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-lg shadow-red-600/30 transition flex items-center space-x-1.5"
+                  >
+                    <Icon name="eye" size={16} />
+                    <span>Inspect Audit File</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col shadow-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wide flex items-center gap-2">
+                        <Icon name="map-pin" size={18} className="text-cyan-400" />
+                        Live GIS Construction Map
+                      </h2>
+                    </div>
+                    <div className="relative flex-1 min-h-[340px] rounded-xl overflow-hidden border border-slate-800">
+                      <LeafletMapComponent
+                        projects={filteredProjects}
+                        selectedProjectId={selectedProjectId}
+                        onSelectProject={(id) => {
+                          setSelectedProjectId(id);
+                          setIsDrawerOpen(true);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col shadow-lg">
+                    <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wide mb-3 flex items-center gap-2">
+                      <Icon name="shield-alert" size={18} className="text-red-400" />
+                      Flagged Projects Queue
+                    </h2>
+                    <div className="flex-1 space-y-3 overflow-y-auto max-h-[340px] pr-1">
+                      {filteredProjects.map((p) => (
+                        <div
+                          key={p.id}
+                          onClick={() => {
+                            setSelectedProjectId(p.id);
+                            setIsDrawerOpen(true);
+                          }}
+                          className={`p-3 rounded-xl border transition cursor-pointer hover:border-cyan-500/50 ${
+                            p.status === "RED" ? "bg-red-950/20 border-red-900/40" : p.status === "YELLOW" ? "bg-amber-950/20 border-amber-900/40" : "bg-slate-800/40 border-slate-800"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <span className={`w-2.5 h-2.5 rounded-full ${p.status === "RED" ? "bg-red-500 animate-pulse" : p.status === "YELLOW" ? "bg-amber-500" : "bg-emerald-500"}`}></span>
+                                <span className="font-mono text-xs text-slate-400 font-bold">{p.id}</span>
+                              </div>
+                              <h4 className="text-xs font-bold text-slate-100 mt-1">{p.name}</h4>
+                            </div>
+                            <span className="font-mono text-xs font-extrabold text-red-400">{p.discrepancyDelta}% Delta</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+                  <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <Icon name="history" size={18} className="text-cyan-400" />
+                    Recent Audit Timeline Log
+                  </h2>
+                  <AuditLogTable logs={auditLogs} />
+                </div>
+              </div>
+            )}
+
+            {activeTab === "map" && (
+              <div className="h-[calc(100vh-180px)] min-h-[500px] bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col shadow-xl">
+                <h2 className="text-base font-bold text-slate-100 mb-3 flex items-center gap-2">
+                  <Icon name="map-pin" size={20} className="text-cyan-400" />
+                  Interactive GIS Public Works Corruption Map
+                </h2>
+                <div className="relative flex-1 rounded-xl overflow-hidden border border-slate-800">
+                  <LeafletMapComponent
+                    projects={filteredProjects}
+                    selectedProjectId={selectedProjectId}
+                    onSelectProject={(id) => {
+                      setSelectedProjectId(id);
+                      setIsDrawerOpen(true);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === "citizen" && (
+              <CitizenPortalModule projects={projects} onAddReport={handleAddCitizenReport} />
+            )}
+
+            {activeTab === "engine" && (
+              <AnomalyEngineModule projects={projects} onSelectProject={(id) => { setSelectedProjectId(id); setIsDrawerOpen(true); }} />
+            )}
+
+            {activeTab === "workflow" && (
+              <CaseWorkflowModule
+                projects={projects}
+                auditLogs={auditLogs}
+                onSendToAuthority={handleSendToAuthority}
+                onEscalateCase={handleEscalateCase}
+                onResolveCase={handleResolveCase}
+              />
+            )}
+          </main>
+
+          <ProjectDetailDrawer
+            isOpen={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+            project={selectedProject}
+            onSendToAuthority={handleSendToAuthority}
+            onEscalateCase={handleEscalateCase}
+          />
+        </div>
+      );
+    }
+
+    function KPIHeader({ totalMonitored, totalAllocated, totalDisbursed, totalVarianceRisk, flaggedAlertsCount, pendingReviewCount, escalatedCount, riskFilter, setRiskFilter }) {
+      const formatMoney = (val) => `$${(val / 1000000).toFixed(1)}M`;
+      return (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+              <span className="text-xs font-bold text-slate-400 uppercase">Monitored Sites</span>
+              <div className="text-2xl font-extrabold text-slate-100 font-mono mt-2">{totalMonitored} Sites</div>
+              <p className="text-xs text-slate-400 mt-1">Capital: {formatMoney(totalAllocated)}</p>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+              <span className="text-xs font-bold text-slate-400 uppercase">Disbursed Capital</span>
+              <div className="text-2xl font-extrabold text-slate-100 font-mono mt-2">{formatMoney(totalDisbursed)}</div>
+              <p className="text-xs text-red-400 font-bold mt-1">{formatMoney(totalVarianceRisk)} Risk Variance</p>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+              <span className="text-xs font-bold text-slate-400 uppercase">Flagged Alerts</span>
+              <div className="text-2xl font-extrabold text-red-400 font-mono mt-2">{flaggedAlertsCount} High Risk</div>
+              <p className="text-xs text-slate-400 mt-1">Automated CNN/NLP Active</p>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+              <span className="text-xs font-bold text-slate-400 uppercase">Pending Review</span>
+              <div className="text-2xl font-extrabold text-amber-400 font-mono mt-2">{pendingReviewCount} Active</div>
+              <p className="text-xs text-slate-400 mt-1">{escalatedCount} Escalated to Bureau</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function LeafletMapComponent({ projects, selectedProjectId, onSelectProject }) {
+      const mapContainerRef = useRef(null);
+      const mapInstanceRef = useRef(null);
+      const markersRef = useRef({});
+
+      useEffect(() => {
+        if (!mapContainerRef.current) return;
+        if (!mapInstanceRef.current) {
+          const map = L.map(mapContainerRef.current, { center: [19.0760, 72.8777], zoom: 11 });
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+          mapInstanceRef.current = map;
+        }
+        const map = mapInstanceRef.current;
+        Object.values(markersRef.current).forEach(m => m.remove());
+        markersRef.current = {};
+
+        projects.forEach(p => {
+          const pinClass = p.status === "RED" ? "pin-red" : p.status === "YELLOW" ? "pin-yellow" : "pin-green";
+          const customIcon = L.divIcon({
+            className: `custom-map-pin ${pinClass}`,
+            html: `<span>${p.status === "RED" ? "!" : p.status === "YELLOW" ? "?" : "✓"}</span>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+          });
+
+          const marker = L.marker(p.coordinates, { icon: customIcon }).addTo(map);
+          const popupContent = `
+            <div style="font-family: sans-serif; padding: 4px; min-width: 200px;">
+              <div style="font-size: 11px; font-weight: bold; color: #64748b;">${p.id}</div>
+              <div style="font-size: 13px; font-weight: bold; color: #0f172a;">${p.name}</div>
+              <div style="font-size: 11px; color: #475569; margin-top: 2px;">Reported: ${p.reportedProgress}% vs CNN Actual: ${p.actualProgress}%</div>
+              <button id="btn-inspect-${p.id}" style="margin-top: 8px; width: 100%; background: #0284c7; color: white; border: none; padding: 6px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">
+                Inspect Audit File →
+              </button>
+            </div>
+          `;
+          marker.bindPopup(popupContent);
+          marker.on("click", () => onSelectProject(p.id));
+          markersRef.current[p.id] = marker;
+        });
+
+        const handlePopupClick = (e) => {
+          if (e.target && e.target.id && e.target.id.startsWith("btn-inspect-")) {
+            onSelectProject(e.target.id.replace("btn-inspect-", ""));
+          }
+        };
+        document.addEventListener("click", handlePopupClick);
+        return () => document.removeEventListener("click", handlePopupClick);
+      }, [projects]);
+
+      return <div ref={mapContainerRef} className="w-full h-full" />;
+    }
+
+    function ProjectDetailDrawer({ isOpen, onClose, project, onSendToAuthority, onEscalateCase }) {
+      if (!isOpen || !project) return null;
+      return (
+        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={onClose}></div>
+          <div className="relative w-full max-w-2xl bg-slate-900 border-l border-slate-800 text-slate-100 shadow-2xl h-full flex flex-col z-10 overflow-y-auto p-6 space-y-6">
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div>
+                <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/30">{project.id}</span>
+                <h2 className="text-lg font-bold text-slate-100 mt-2">{project.name}</h2>
+                <p className="text-xs text-slate-400 mt-1">{project.locationName} • {project.sector}</p>
+              </div>
+              <button onClick={onClose} className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-slate-200">
+                <Icon name="x" size={20} />
+              </button>
+            </div>
+
+            <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+              <span className="text-xs text-amber-400 font-mono font-bold">Workflow: {project.workflowStatus}</span>
+              <div className="flex space-x-2">
+                <button onClick={() => onSendToAuthority(project.id)} className="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Send to Authority</button>
+                <button onClick={() => onEscalateCase(project.id)} className="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Escalate Case</button>
+              </div>
+            </div>
+
+            <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-4 space-y-2">
+              <h3 className="text-xs font-bold text-slate-400 uppercase">Progress Audit</h3>
+              <div className="grid grid-cols-2 gap-3 font-mono text-center">
+                <div className="bg-slate-900 p-2 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400">Claimed Progress</span>
+                  <div className="text-sm font-bold text-blue-400 mt-1">{project.reportedProgress}%</div>
+                </div>
+                <div className="bg-slate-900 p-2 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400">CNN Actual</span>
+                  <div className="text-sm font-bold text-red-400 mt-1">{project.actualProgress}%</div>
+                </div>
+              </div>
+            </div>
+
+            {project.citizenPhotos && project.citizenPhotos.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-slate-400 uppercase">Attached Geotagged Evidence</h3>
+                {project.citizenPhotos.map((photo) => (
+                  <div key={photo.id} className="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
+                    <img src={photo.imageUrl} alt="Citizen Photo" className="w-full h-48 object-cover rounded-lg" />
+                    <p className="text-xs text-slate-300 italic">"{photo.userNotes}"</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function CitizenPortalModule({ projects, onAddReport }) {
+      const [selectedProjectId, setSelectedProjectId] = useState(projects[0]?.id || "");
+      const [isScanning, setIsScanning] = useState(false);
+      const [scanProgress, setScanProgress] = useState(0);
+      const [scanResult, setScanResult] = useState(null);
+
+      const samplePhotos = [
+        { url: "assets/site_foundation_incomplete_1789104285937.png", label: "Incomplete Site Foundation", lat: 19.0765, lng: 72.8782, estProgress: 35, objects: ["Exposed Rebar 12%", "Idle Excavator 1"] },
+        { url: "assets/bridge_pier_crack_1789104300196.png", label: "Bridge Pier Stress Fracture", lat: 19.0180, lng: 72.8565, estProgress: 48, objects: ["Micro-Fracture 1.2m"] },
+        { url: "assets/school_building_delayed_1789104312663.png", label: "Delayed Unroofed Shell", lat: 19.1200, lng: 72.9055, estProgress: 40, objects: ["Masonry Shell 40%"] }
+      ];
+      const [selectedSamplePhoto, setSelectedSamplePhoto] = useState(0);
+
+      const handleStartScan = () => {
+        setIsScanning(true);
+        setScanProgress(0);
+        setScanResult(null);
+        let current = 0;
+        const interval = setInterval(() => {
+          current += 20;
+          setScanProgress(current);
+          if (current >= 100) {
+            clearInterval(interval);
+            setIsScanning(false);
+            const photo = samplePhotos[selectedSamplePhoto];
+            setScanResult({ detectedState: photo.label, estimatedCompletion: photo.estProgress, confidenceScore: 98.6, detectedObjects: photo.objects });
+          }
+        }, 300);
+      };
+
+      const handleSubmit = () => {
+        if (!scanResult) return;
+        const photo = samplePhotos[selectedSamplePhoto];
+        onAddReport({
+          projectId: selectedProjectId,
+          photoReport: {
+            id: `RPT-${Math.floor(100 + Math.random() * 900)}`,
+            submitter: "Citizen Auditor",
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19) + " UTC",
+            lat: photo.lat, lng: photo.lng, imageUrl: photo.url, userNotes: "Ground truth site photo.", exifData: { camera: "iPhone 15 Pro Max" }, cnnAnalysis: scanResult
+          }
+        });
+        alert("Citizen Evidence Submitted & Verified!");
+      };
+
+      return (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+          <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+            <Icon name="camera" size={20} className="text-cyan-400" />
+            Citizen Reporting & GPS Photo Verification Portal
+          </h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-6 space-y-4">
+              <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                {projects.map(p => <option key={p.id} value={p.id}>{p.id} - {p.name}</option>)}
+              </select>
+
+              <div className="grid grid-cols-3 gap-2">
+                {samplePhotos.map((photo, idx) => (
+                  <div key={idx} onClick={() => { setSelectedSamplePhoto(idx); setScanResult(null); }} className={`relative rounded-xl overflow-hidden border-2 cursor-pointer max-h-24 ${selectedSamplePhoto === idx ? "border-cyan-500" : "border-slate-800"}`}>
+                    <img src={photo.url} alt={`Sample ${idx}`} className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
+
+              <button onClick={handleStartScan} disabled={isScanning} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-3 rounded-xl">
+                {isScanning ? `Scanning CNN Neural Net (${scanProgress}%)...` : "Run CNN Optical Image Verification"}
+              </button>
+            </div>
+
+            <div className="lg:col-span-6 bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative min-h-[260px]">
+              <div className="relative rounded-xl overflow-hidden border border-slate-800 flex-1 flex items-center justify-center bg-slate-900">
+                <img src={samplePhotos[selectedSamplePhoto].url} alt="Scan Target" className="w-full h-full object-cover" />
+                {isScanning && <div className="laser-line"></div>}
+              </div>
+
+              {scanResult && (
+                <div className="bg-cyan-950/40 border border-cyan-900/50 rounded-xl p-3 space-y-2 mt-3">
+                  <div className="flex justify-between text-xs font-mono text-cyan-400 font-bold">
+                    <span>State: {scanResult.detectedState}</span>
+                    <span>CNN Progress: {scanResult.estimatedCompletion}%</span>
+                  </div>
+                  <button onClick={handleSubmit} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 rounded-lg">
+                    Attach Evidence to Project Record
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function AnomalyEngineModule({ projects, onSelectProject }) {
+      return (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+          <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+            <Icon name="cpu" size={20} className="text-cyan-400" />
+            Automated Data Extraction & AI Anomaly Engine
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-950 text-slate-400 font-mono">
+                <tr>
+                  <th className="p-3">Detected Date</th>
+                  <th className="p-3">Project & Contractor</th>
+                  <th className="p-3">Anomaly Code</th>
+                  <th className="p-3">Description</th>
+                  <th className="p-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {projects.flatMap(p => p.anomalies.map(a => ({ ...a, project: p }))).map((item, idx) => (
+                  <tr key={idx} className="hover:bg-slate-800/40">
+                    <td className="p-3 font-mono text-slate-400">{item.detectedDate}</td>
+                    <td className="p-3 font-bold text-slate-100">{item.project.name}</td>
+                    <td className="p-3 font-mono text-cyan-400 font-bold">{item.code}</td>
+                    <td className="p-3 text-slate-300">{item.description}</td>
+                    <td className="p-3 text-right">
+                      <button onClick={() => onSelectProject(item.project.id)} className="bg-slate-800 text-cyan-400 px-3 py-1 rounded">Inspect →</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    function CaseWorkflowModule({ projects, auditLogs, onSendToAuthority, onEscalateCase, onResolveCase }) {
+      return (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+          <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+            <Icon name="scale" size={20} className="text-cyan-400" />
+            Authority Verification & Escalation Case Queue
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {projects.map((p) => (
+              <div key={p.id} className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="font-mono text-xs font-bold text-slate-400">{p.id}</span>
+                    <h3 className="text-sm font-bold text-slate-100">{p.name}</h3>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-red-400">{p.riskScore}/100</span>
+                </div>
+                <div className="flex space-x-2 pt-2 border-t border-slate-800">
+                  <button onClick={() => onSendToAuthority(p.id)} className="flex-1 bg-cyan-600 text-white text-xs font-bold py-2 rounded-xl">Send Notice</button>
+                  <button onClick={() => onEscalateCase(p.id)} className="flex-1 bg-red-600 text-white text-xs font-bold py-2 rounded-xl">Escalate to Bureau</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function AuditLogTable({ logs }) {
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-950 text-slate-400 font-mono">
+              <tr>
+                <th className="p-3">Timestamp</th>
+                <th className="p-3">Log ID</th>
+                <th className="p-3">Action</th>
+                <th className="p-3">Details</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60 font-mono">
+              {logs.map((log) => (
+                <tr key={log.id}>
+                  <td className="p-3 text-slate-400">{log.timestamp}</td>
+                  <td className="p-3 text-cyan-400 font-bold">{log.id}</td>
+                  <td className="p-3"><span className="bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded text-[10px] font-bold">{log.action}</span></td>
+                  <td className="p-3 text-slate-300 font-sans">{log.details}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
